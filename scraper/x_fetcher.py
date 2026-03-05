@@ -110,21 +110,23 @@ def _collect_queries() -> list[str]:
 
 
 def _is_en_or_cn(text: str) -> bool:
-    """Return True if text is primarily English or Chinese (no Japanese/Korean/Thai/etc)."""
+    """Return True if text is primarily English or Chinese."""
     stripped = re.sub(r"https?://\S+|@\w+|#\w+", "", text)
-    # Japanese kana = definite Japanese
-    ja_chars = len(re.findall(r"[\u3040-\u309f\u30a0-\u30ff]", stripped))
-    # Korean
-    ko_chars = len(re.findall(r"[\u1100-\u11ff\uac00-\ud7af]", stripped))
-    # Thai
-    th_chars = len(re.findall(r"[\u0e00-\u0e7f]", stripped))
-    # Arabic, Devanagari, Cyrillic
-    other_chars = len(re.findall(r"[\u0600-\u06ff\u0900-\u097f\u0400-\u04ff]", stripped))
-    # If any non-EN/CN script has significant presence, reject
-    foreign = ja_chars + ko_chars + th_chars + other_chars
-    if foreign >= 3:
+    # Non-Latin scripts — reject if >= 5 chars
+    foreign_script = len(re.findall(
+        r"[\u3040-\u309f\u30a0-\u30ff"     # Japanese kana
+        r"\u1100-\u11ff\uac00-\ud7af"       # Korean
+        r"\u0e00-\u0e7f"                    # Thai
+        r"\u0600-\u06ff"                    # Arabic
+        r"\u0900-\u097f"                    # Devanagari
+        r"\u0400-\u04ff"                    # Cyrillic
+        r"\u1000-\u109f"                    # Myanmar
+        r"\u0980-\u09ff]",                  # Bengali
+        stripped
+    ))
+    if foreign_script >= 5:
         return False
-    # Check there's some English or Chinese content
+    # Must have some English or Chinese content
     en_chars = len(re.findall(r"[a-zA-Z]", stripped))
     cn_chars = len(re.findall(r"[\u4e00-\u9fff]", stripped))
     return (en_chars + cn_chars) >= 5

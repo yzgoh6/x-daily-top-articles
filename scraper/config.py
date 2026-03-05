@@ -42,13 +42,14 @@ CATEGORIES = {
             ("agentic", 2), ("AI system", 2), ("AI model", 2),
             ("text-to-image", 2), ("text-to-video", 2), ("AI agent", 2),
             ("AI coding", 2), ("vibe coding", 2),
+            ("AI productivity", 2), ("AI news", 2),
             # Weak signals (weight 1) - need multiple hits
             ("AI", 1), ("chatbot", 1), ("model", 1), ("training", 1),
             ("inference", 1), ("Gemini", 1), ("Alpha", 1),
         ],
         "search_queries": [
-            "AI breakthrough min_faves:500",
-            "LLM GPT Claude min_faves:300",
+            "AI breakthrough lang:en min_faves:500",
+            "LLM GPT Claude lang:en min_faves:300",
         ],
     },
     "Tech": {
@@ -70,13 +71,16 @@ CATEGORIES = {
             ("developer", 2), ("GitHub", 2), ("Linux", 2), ("Next.js", 2),
             ("Vercel", 2), ("Cloudflare", 2), ("Supabase", 2),
             ("5G", 2), ("AR", 2), ("VR", 2), ("Vision Pro", 2),
+            ("FAANG", 3), ("system design", 2), ("REST API", 2),
+            ("microservices", 2), ("data engineering", 2),
+            ("SDE", 2), ("backend", 2), ("frontend", 2), ("full stack", 2),
             # Weak signals (weight 1)
             ("software", 1), ("tech", 1), ("API", 1), ("cloud", 1),
-            ("code", 1), ("chip", 1), ("app", 1),
+            ("code", 1), ("chip", 1), ("app", 1), ("engineer", 1),
         ],
         "search_queries": [
-            "tech news min_faves:500",
-            "software engineering min_faves:300",
+            "tech news lang:en min_faves:500",
+            "software engineering lang:en min_faves:300",
         ],
     },
     "Crypto": {
@@ -91,8 +95,8 @@ CATEGORIES = {
             ("token", 1), ("mining", 1), ("wallet", 1), ("coin", 1),
         ],
         "search_queries": [
-            "crypto bitcoin min_faves:500",
-            "DeFi Web3 blockchain min_faves:300",
+            "crypto bitcoin lang:en min_faves:500",
+            "DeFi Web3 blockchain lang:en min_faves:300",
         ],
     },
     "Finance": {
@@ -109,8 +113,8 @@ CATEGORIES = {
             ("revenue", 1), ("Fed", 1), ("investor", 1),
         ],
         "search_queries": [
-            "finance investing min_faves:500",
-            "stock market min_faves:300",
+            "finance investing lang:en min_faves:500",
+            "stock market lang:en min_faves:300",
         ],
     },
     "Business": {
@@ -123,7 +127,7 @@ CATEGORIES = {
             ("leadership", 1),
         ],
         "search_queries": [
-            "business strategy min_faves:500",
+            "business strategy lang:en min_faves:500",
         ],
     },
     "Startup": {
@@ -136,7 +140,7 @@ CATEGORIES = {
             ("VC", 1), ("YC", 1),
         ],
         "search_queries": [
-            "startup founder VC min_faves:300",
+            "startup founder fundraising lang:en min_faves:500",
         ],
     },
     "Education": {
@@ -149,7 +153,7 @@ CATEGORIES = {
             ("learning", 1), ("course", 1),
         ],
         "search_queries": [
-            "education learning min_faves:300",
+            "education learning lang:en min_faves:300",
         ],
     },
 }
@@ -159,6 +163,14 @@ SPAM_PATTERNS = [
     r"(?i)\b(giveaway|airdrop free|click here|sign up now|limited time)\b",
     r"(?i)\b(follow and retweet|like and rt|drop your wallet)\b",
     r"(?i)(💰🔥.*join|FREE tokens|guaranteed profit)",
+    r"(?i)^Copy\s*&\s*amp;\s*paste",                     # "Copy & paste" spam
+    r"(?i)Trend update currently",                        # Trend bot spam
+    r"(?i)Dramas? Daily Views",                           # Drama charts bot
+    r"(?i)Daily Reminder To The Fake News",               # Political spam bot
+    r"(?i)^\d+\.\s+This (series|story|project|effort)",   # Numbered spam lists
+    r"(?i)batches are filling up fast",                   # Course/sales spam
+    r"(?i)Nieuws Update",                                 # Dutch news bot
+    r"(?i)^\d+ pips now",                                 # Forex signal spam
 ]
 
 CATEGORY_PRIORITY = sorted(CATEGORIES.keys(), key=lambda c: CATEGORIES[c]["priority"])
