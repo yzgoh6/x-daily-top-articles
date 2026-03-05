@@ -29,3 +29,15 @@ CREATE INDEX idx_articles_score ON articles (engagement_score DESC);
 -- RLS: public read access
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public_read" ON articles FOR SELECT USING (true);
+
+-- Cookies table for X (Twitter) auth
+CREATE TABLE x_cookies (
+  id              INTEGER PRIMARY KEY DEFAULT 1,
+  auth_token      TEXT NOT NULL,
+  ct0             TEXT NOT NULL,
+  twid            TEXT DEFAULT '',
+  updated_at      TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT single_row CHECK (id = 1)
+);
+
+ALTER TABLE x_cookies ENABLE ROW LEVEL SECURITY;

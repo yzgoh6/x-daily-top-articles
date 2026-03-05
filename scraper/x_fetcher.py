@@ -67,9 +67,9 @@ def _parse_tweet(tweet: Any) -> dict[str, Any] | None:
             "author_handle": f"@{handle}" if handle else "",
             "url": f"https://x.com/{handle}/status/{tweet_id}" if handle else "",
             "image_url": image_url,
-            "likes": tweet.favorite_count or 0,
-            "comments": tweet.reply_count or 0,
-            "shares": tweet.retweet_count or 0,
+            "likes": _safe_int(tweet.favorite_count),
+            "comments": _safe_int(tweet.reply_count),
+            "shares": _safe_int(tweet.retweet_count),
             "views": _safe_int(getattr(tweet, "view_count", 0)),
             "published_at": _parse_date(tweet.created_at) if hasattr(tweet, "created_at") else None,
         }

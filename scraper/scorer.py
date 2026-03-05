@@ -14,16 +14,9 @@ def compute_score(tweet: dict[str, Any]) -> float:
 
 
 def rank_and_trim(tweets: list[dict[str, Any]], top_n: int = 50) -> list[dict[str, Any]]:
-    """Score each tweet, sort descending, keep top_n, deduplicate by external_id."""
-    seen: set[str] = set()
-    unique: list[dict[str, Any]] = []
+    """Score each tweet, sort descending, keep top_n."""
     for t in tweets:
-        eid = t.get("external_id", "")
-        if not eid or eid in seen:
-            continue
-        seen.add(eid)
         t["engagement_score"] = compute_score(t)
-        unique.append(t)
 
-    unique.sort(key=lambda t: t["engagement_score"], reverse=True)
-    return unique[:top_n]
+    tweets.sort(key=lambda t: t["engagement_score"], reverse=True)
+    return tweets[:top_n]
