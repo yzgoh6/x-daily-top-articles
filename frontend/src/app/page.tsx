@@ -4,7 +4,7 @@ import ArticleCard from "@/components/ArticleCard";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface Props {
   searchParams: Promise<{ date?: string; category?: string; q?: string }>;
