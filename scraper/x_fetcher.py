@@ -18,6 +18,19 @@ from db import get_client as get_supabase
 logger = logging.getLogger(__name__)
 
 
+def _parse_date(date_str: str | None) -> str | None:
+    """Convert Twitter date format to ISO 8601 for Supabase."""
+    if not date_str:
+        return None
+    try:
+        # Twitter format: "Wed Oct 10 20:19:24 +0000 2018"
+        dt = datetime.strptime(date_str, "%a %b %d %H:%M:%S %z %Y")
+        return dt.isoformat()
+    except (ValueError, TypeError):
+        # Already ISO or unknown format — return as-is
+        return date_str
+
+
 def _parse_tweet(tweet: Any) -> dict[str, Any] | None:
     """Convert a twikit Tweet object into a flat dict."""
     try:
@@ -46,7 +59,7 @@ def _parse_tweet(tweet: Any) -> dict[str, Any] | None:
             "comments": tweet.reply_count or 0,
             "shares": tweet.retweet_count or 0,
             "views": getattr(tweet, "view_count", 0) or 0,
-            "published_at": tweet.created_at if hasattr(tweet, "created_at") else None,
+            "published_at": _parse_date(tweet.created_at) if hasattr(tweet, "created_at") else None,
         }
     except Exception:
         logger.warning("Failed to parse tweet", exc_info=True)
@@ -146,7 +159,7 @@ async def fetch_tweets() -> list[dict[str, Any]]:
     spam_count = 0
     lang_count = 0
     for tweet in raw:
-        text = f"{tweet.get('title', '')} {tweet.get('content', '')}"
+        text = tweet.get("content", "") or tweet.get("title", "")
         if is_spam(text):
             spam_count += 1
             continue

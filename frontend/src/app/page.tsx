@@ -83,9 +83,15 @@ export default function Home() {
   }, [qualityArticles]);
 
   const totalCount = qualityArticles.length;
-  const lastFetched = articles[0]?.fetched_at ?? null;
+  const lastFetched = useMemo(() => {
+    if (!articles.length) return null;
+    return articles.reduce((max, a) => (a.fetched_at > max ? a.fetched_at : max), articles[0].fetched_at);
+  }, [articles]);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  })();
   const isToday = date === today;
   const isAll = date === "";
 
