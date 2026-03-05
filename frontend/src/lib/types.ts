@@ -28,8 +28,6 @@ export const CATEGORIES = [
   "Business",
   "Startup",
   "Education",
-  "Health",
-  "Entertainment",
   "Other",
 ] as const;
 

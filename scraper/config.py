@@ -152,32 +152,6 @@ CATEGORIES = {
             "education learning min_faves:300",
         ],
     },
-    "Health": {
-        "priority": 8,
-        "keywords": [
-            ("mental health", 3), ("biotech", 3), ("pharma", 3),
-            ("longevity", 3),
-            ("fitness", 2), ("nutrition", 2), ("wellness", 2),
-            ("workout", 2), ("meditation", 2),
-            ("health", 1), ("sleep", 1),
-        ],
-        "search_queries": [
-            "health fitness wellness min_faves:300",
-        ],
-    },
-    "Entertainment": {
-        "priority": 9,
-        "keywords": [
-            ("Netflix", 3), ("PlayStation", 3), ("Xbox", 3),
-            ("Nintendo", 3), ("anime", 3), ("TV show", 3),
-            ("movie", 2), ("streaming", 2), ("concert", 2), ("album", 2),
-            ("entertainment", 2),
-            ("music", 1), ("game", 1), ("film", 1),
-        ],
-        "search_queries": [
-            "entertainment movie game min_faves:300",
-        ],
-    },
 }
 
 # Spam / ad indicators — if any match, skip the tweet
