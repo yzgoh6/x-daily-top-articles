@@ -16,7 +16,7 @@ GitHub Actions (Hourly Cron)      Supabase (PostgreSQL)      Vercel (Next.js)
 
 ## Categories
 
-AI, Tech, Crypto, Finance, Business, Startup, Education, Other
+AI, Tech, Crypto, Finance, Business, Startup, Other
 
 ## Tech Stack
 

@@ -27,7 +27,6 @@ export const CATEGORIES = [
   "Finance",
   "Business",
   "Startup",
-  "Education",
   "Other",
 ] as const;
 

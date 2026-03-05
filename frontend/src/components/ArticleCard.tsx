@@ -31,7 +31,6 @@ const categoryColors: Record<string, string> = {
   Finance: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
   Business: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
   Startup: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300",
-  Education: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300",
   Other: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
 };
 

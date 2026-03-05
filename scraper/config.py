@@ -147,19 +147,6 @@ CATEGORIES = {
             "startup founder fundraising lang:en min_faves:200",
         ],
     },
-    "Education": {
-        "priority": 7,
-        "keywords": [
-            ("online course", 3), ("edtech", 3), ("bootcamp", 3),
-            ("MOOC", 3), ("scholarship", 3),
-            ("education", 2), ("university", 2), ("tutorial", 2),
-            ("certification", 2),
-            ("learning", 1), ("course", 1),
-        ],
-        "search_queries": [
-            "education learning lang:en min_faves:100",
-        ],
-    },
 }
 
 # Spam / ad indicators — if any match, skip the tweet
