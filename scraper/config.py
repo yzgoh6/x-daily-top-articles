@@ -62,6 +62,8 @@ CATEGORIES = {
             ("cybersecurity", 3), ("semiconductor", 3),
             ("SaaS", 3), ("DevOps", 3), ("Kubernetes", 3), ("Docker", 3),
             ("Apple", 3), ("iPhone", 3), ("iPad", 3), ("MacBook", 3), ("iOS", 3),
+            ("macOS", 3), ("Mac Pro", 3), ("Mac Studio", 3), ("Mac Mini", 3),
+            ("iMac", 3), ("Apple Watch", 3), ("AirPods", 3), ("WWDC", 3),
             ("Google", 3), ("Android", 3), ("Pixel", 3), ("Chrome", 3),
             ("Microsoft", 3), ("Windows", 3), ("Azure", 3),
             ("Amazon", 3), ("AWS", 3), ("Tesla", 3), ("SpaceX", 3),
