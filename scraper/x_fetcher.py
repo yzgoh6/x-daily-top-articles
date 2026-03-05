@@ -6,7 +6,7 @@ import asyncio
 import os
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Any
 
 from twikit import Client
@@ -100,12 +100,12 @@ async def _search(client: Client, queries: list[str]) -> list[dict[str, Any]]:
 
 
 def _collect_queries() -> list[str]:
-    """Gather all search queries from config, adding today's date filter."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    """Gather all search queries from config, filtering to yesterday+today."""
+    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
     queries: list[str] = []
     for cat_cfg in CATEGORIES.values():
         for q in cat_cfg.get("search_queries", []):
-            queries.append(f"{q} since:{today}")
+            queries.append(f"{q} since:{yesterday}")
     return queries
 
 

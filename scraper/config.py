@@ -48,8 +48,10 @@ CATEGORIES = {
             ("inference", 1), ("Gemini", 1), ("Alpha", 1),
         ],
         "search_queries": [
-            "AI breakthrough lang:en min_faves:500",
-            "LLM GPT Claude lang:en min_faves:300",
+            "AI breakthrough lang:en min_faves:100",
+            "LLM GPT Claude lang:en min_faves:100",
+            "OpenAI Anthropic DeepSeek lang:en min_faves:100",
+            "AI agent coding lang:en min_faves:100",
         ],
     },
     "Tech": {
@@ -79,8 +81,10 @@ CATEGORIES = {
             ("code", 1), ("chip", 1), ("app", 1), ("engineer", 1),
         ],
         "search_queries": [
-            "tech news lang:en min_faves:500",
-            "software engineering lang:en min_faves:300",
+            "tech news lang:en min_faves:100",
+            "software engineering lang:en min_faves:100",
+            "Apple Google NVIDIA lang:en min_faves:200",
+            "developer programming lang:en min_faves:100",
         ],
     },
     "Crypto": {
@@ -95,8 +99,8 @@ CATEGORIES = {
             ("token", 1), ("mining", 1), ("wallet", 1), ("coin", 1),
         ],
         "search_queries": [
-            "crypto bitcoin lang:en min_faves:500",
-            "DeFi Web3 blockchain lang:en min_faves:300",
+            "crypto bitcoin lang:en min_faves:200",
+            "DeFi Web3 blockchain lang:en min_faves:100",
         ],
     },
     "Finance": {
@@ -113,8 +117,8 @@ CATEGORIES = {
             ("revenue", 1), ("Fed", 1), ("investor", 1),
         ],
         "search_queries": [
-            "finance investing lang:en min_faves:500",
-            "stock market lang:en min_faves:300",
+            "finance investing lang:en min_faves:200",
+            "stock market lang:en min_faves:200",
         ],
     },
     "Business": {
@@ -127,7 +131,7 @@ CATEGORIES = {
             ("leadership", 1),
         ],
         "search_queries": [
-            "business strategy lang:en min_faves:500",
+            "business strategy lang:en min_faves:200",
         ],
     },
     "Startup": {
@@ -140,7 +144,7 @@ CATEGORIES = {
             ("VC", 1), ("YC", 1),
         ],
         "search_queries": [
-            "startup founder fundraising lang:en min_faves:500",
+            "startup founder fundraising lang:en min_faves:200",
         ],
     },
     "Education": {
@@ -153,7 +157,7 @@ CATEGORIES = {
             ("learning", 1), ("course", 1),
         ],
         "search_queries": [
-            "education learning lang:en min_faves:300",
+            "education learning lang:en min_faves:100",
         ],
     },
 }
