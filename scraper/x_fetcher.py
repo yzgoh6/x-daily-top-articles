@@ -18,6 +18,18 @@ from db import get_client as get_supabase
 logger = logging.getLogger(__name__)
 
 
+def _safe_int(val: Any) -> int:
+    """Safely convert value to int, handling comma-formatted strings."""
+    if val is None:
+        return 0
+    if isinstance(val, int):
+        return val
+    try:
+        return int(str(val).replace(",", ""))
+    except (ValueError, TypeError):
+        return 0
+
+
 def _parse_date(date_str: str | None) -> str | None:
     """Convert Twitter date format to ISO 8601 for Supabase."""
     if not date_str:
@@ -58,7 +70,7 @@ def _parse_tweet(tweet: Any) -> dict[str, Any] | None:
             "likes": tweet.favorite_count or 0,
             "comments": tweet.reply_count or 0,
             "shares": tweet.retweet_count or 0,
-            "views": getattr(tweet, "view_count", 0) or 0,
+            "views": _safe_int(getattr(tweet, "view_count", 0)),
             "published_at": _parse_date(tweet.created_at) if hasattr(tweet, "created_at") else None,
         }
     except Exception:
@@ -88,26 +100,53 @@ async def _get_client() -> Client:
     """Get an authenticated client using cookies from Supabase."""
     client = Client("en-US")
     cookies = _load_cookies_from_supabase()
+    if not cookies.get("auth_token") or not cookies.get("ct0"):
+        raise RuntimeError("X cookies are empty or missing. Go to /settings to update them.")
     client.set_cookies(cookies)
+    # Verify cookies work by fetching user info
+    try:
+        await client.user()
+        logger.info("Cookie auth verified successfully")
+    except Exception:
+        raise RuntimeError(
+            "X cookies appear to be expired or invalid. Go to /settings to update them."
+        )
     return client
 
 
 async def _search(client: Client, queries: list[str]) -> list[dict[str, Any]]:
-    """Search tweets for all queries."""
+    """Search tweets for all queries with retry and backoff."""
     results: list[dict[str, Any]] = []
+    consecutive_failures = 0
 
     for query in queries:
-        try:
-            logger.info(f"Searching: {query}")
-            tweets = await client.search_tweet(query, product="Top")
-            for tweet in tweets:
-                parsed = _parse_tweet(tweet)
-                if parsed:
-                    results.append(parsed)
-            await asyncio.sleep(3)
-        except Exception:
-            logger.warning(f"Query failed: {query}", exc_info=True)
-            continue
+        # If too many consecutive failures, likely rate limited — stop early
+        if consecutive_failures >= 3:
+            logger.warning(f"Stopping search: {consecutive_failures} consecutive failures (likely rate limited)")
+            break
+
+        for attempt in range(3):
+            try:
+                logger.info(f"Searching: {query}")
+                tweets = await client.search_tweet(query, product="Top")
+                for tweet in tweets:
+                    parsed = _parse_tweet(tweet)
+                    if parsed:
+                        results.append(parsed)
+                consecutive_failures = 0
+                await asyncio.sleep(3)
+                break
+            except Exception as e:
+                err_msg = str(e).lower()
+                is_rate_limit = "429" in err_msg or "rate" in err_msg or "too many" in err_msg
+                if is_rate_limit and attempt < 2:
+                    wait = (attempt + 1) * 15  # 15s, 30s
+                    logger.warning(f"Rate limited on '{query}', waiting {wait}s (attempt {attempt + 1}/3)")
+                    await asyncio.sleep(wait)
+                else:
+                    logger.warning(f"Query failed: {query}", exc_info=True)
+                    consecutive_failures += 1
+                    break
 
     return results
 
@@ -153,6 +192,19 @@ async def fetch_tweets() -> list[dict[str, Any]]:
     client = await _get_client()
     raw = await _search(client, queries)
     logger.info(f"Fetched {len(raw)} tweets")
+
+    # Deduplicate by external_id before processing
+    seen_ids: set[str] = set()
+    unique: list[dict[str, Any]] = []
+    for tweet in raw:
+        eid = tweet.get("external_id", "")
+        if not eid or eid in seen_ids:
+            continue
+        seen_ids.add(eid)
+        unique.append(tweet)
+    if len(raw) != len(unique):
+        logger.info(f"Deduped {len(raw)} → {len(unique)} tweets")
+    raw = unique
 
     # Filter spam, non-EN/CN languages, and classify
     clean: list[dict[str, Any]] = []

@@ -28,3 +28,7 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           X_USERNAME: ${{ secrets.X_USERNAME }}
           X_PASSWORD: ${{ secrets.X_PASSWORD }}
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "::error::Scraper failed! Check the logs above for details."

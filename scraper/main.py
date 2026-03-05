@@ -13,7 +13,7 @@ load_dotenv()
 
 from x_fetcher import fetch_tweets
 from scorer import rank_and_trim
-from db import upsert_articles
+from db import upsert_articles, cleanup_old_articles
 from config import TOP_N
 
 logging.basicConfig(
@@ -53,6 +53,9 @@ async def run() -> None:
         # 4. Write to Supabase
         written = upsert_articles(top)
         logger.info(f"Wrote {written} articles to Supabase")
+
+        # 5. Cleanup old data
+        cleanup_old_articles(30)
 
         logger.info("=== Scrape complete ===")
     except Exception:

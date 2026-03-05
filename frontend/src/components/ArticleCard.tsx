@@ -81,11 +81,11 @@ export default function ArticleCard({ article }: { article: Article }) {
             </p>
           )}
           <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
-            <span>{formatNumber(article.likes)} ❤</span>
-            <span>{formatNumber(article.comments)} 💬</span>
-            <span>{formatNumber(article.shares)} 🔄</span>
-            {article.views > 0 && (
-              <span>{formatNumber(article.views)} 👁</span>
+            <span>{formatNumber(article.likes ?? 0)} ❤</span>
+            <span>{formatNumber(article.comments ?? 0)} 💬</span>
+            <span>{formatNumber(article.shares ?? 0)} 🔄</span>
+            {(article.views ?? 0) > 0 && (
+              <span>{formatNumber(article.views ?? 0)} 👁</span>
             )}
           </div>
         </div>

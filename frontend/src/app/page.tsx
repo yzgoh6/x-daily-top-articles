@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Article, CATEGORIES } from "@/lib/types";
 import ArticleCard from "@/components/ArticleCard";
+import { useTheme } from "@/components/ThemeProvider";
 
 type SortMode = "hot" | "latest" | "most_liked" | "most_shared";
 
@@ -14,6 +15,9 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "most_shared", label: "Most Shared" },
 ];
 
+const PAGE_SIZE = 50;
+const MIN_SCORE = 100;
+
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,24 +25,41 @@ export default function Home() {
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState<SortMode>("hot");
   const [date, setDate] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const { theme, setTheme } = useTheme();
 
-  useEffect(() => {
+  const fetchArticles = useCallback(() => {
     supabase
       .from("articles")
       .select("*")
       .order("engagement_score", { ascending: false })
-      .limit(200)
+      .limit(500)
       .then(({ data, error: err }) => {
         if (err) {
           setError(true);
         } else {
           setArticles((data as Article[]) || []);
+          setError(false);
         }
         setLoading(false);
       });
   }, []);
 
-  const MIN_SCORE = 100;
+  // Initial fetch
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(fetchArticles, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [fetchArticles]);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [category, sort, date]);
 
   const filtered = useMemo(() => {
     let result = articles.filter((a) => (a.engagement_score ?? 0) >= MIN_SCORE);
@@ -66,8 +87,14 @@ export default function Home() {
       }
     });
 
-    return result.slice(0, 50);
+    return result;
   }, [articles, category, sort, date]);
+
+  const visibleArticles = useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount]
+  );
+  const hasMore = filtered.length > visibleCount;
 
   const qualityArticles = useMemo(
     () => articles.filter((a) => (a.engagement_score ?? 0) >= MIN_SCORE),
@@ -104,12 +131,21 @@ export default function Home() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           X Daily Top Articles
         </h1>
-        <a
-          href="/settings"
-          className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-        >
-          Settings
-        </a>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark")}
+            className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            title={`Theme: ${theme}`}
+          >
+            {theme === "dark" ? "\u{1F319}" : theme === "light" ? "\u{2600}\u{FE0F}" : "\u{1F4BB}"}
+          </button>
+          <a
+            href="/settings"
+            className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            Settings
+          </a>
+        </div>
       </div>
 
       {/* Category Chips */}
@@ -137,14 +173,14 @@ export default function Home() {
       </div>
 
       {/* Filter Bar: View + Time */}
-      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         {/* View / Sort */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto">
           {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => setSort(opt.value)}
-              className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
+              className={`px-3 py-1.5 text-xs rounded-md border transition-colors whitespace-nowrap ${
                 sort === opt.value ? chipActive : chipInactive
               }`}
             >
@@ -197,10 +233,20 @@ export default function Home() {
               <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full" />
             </div>
           ))
-        ) : filtered.length > 0 ? (
-          filtered.map((article) => (
-            <ArticleCard key={article.id} article={article} />
-          ))
+        ) : visibleArticles.length > 0 ? (
+          <>
+            {visibleArticles.map((article) => (
+              <ArticleCard key={article.id} article={article} />
+            ))}
+            {hasMore && (
+              <button
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="w-full py-3 text-sm text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                Load more ({filtered.length - visibleCount} remaining)
+              </button>
+            )}
+          </>
         ) : (
           <p className="text-gray-400 dark:text-gray-600 text-center py-12">
             No articles found.

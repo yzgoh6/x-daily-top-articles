@@ -117,6 +117,11 @@ CATEGORIES = {
         "search_queries": [
             "crypto bitcoin lang:en min_faves:200",
             "DeFi Web3 blockchain lang:en min_faves:100",
+            "from:binance lang:en min_faves:50",
+            "from:coinbase lang:en min_faves:50",
+            "from:solana lang:en min_faves:50",
+            "from:ethereum lang:en min_faves:50",
+            "from:CoinDesk lang:en min_faves:50",
         ],
     },
     "Finance": {
@@ -161,6 +166,9 @@ CATEGORIES = {
         ],
         "search_queries": [
             "business strategy lang:en min_faves:200",
+            "from:Forbes lang:en min_faves:50",
+            "from:HarvardBiz lang:en min_faves:50",
+            "from:McKinsey lang:en min_faves:50",
         ],
     },
     "Startup": {
@@ -174,6 +182,9 @@ CATEGORIES = {
         ],
         "search_queries": [
             "startup founder fundraising lang:en min_faves:200",
+            "from:ycombinator lang:en min_faves:50",
+            "from:a16z lang:en min_faves:50",
+            "from:sequoia lang:en min_faves:50",
         ],
     },
 }
