@@ -8,7 +8,7 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -21,8 +21,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r scraper/requirements.txt
 
+      - name: Install Playwright browsers
+        run: python3 -m playwright install chromium --with-deps
+
       - name: Run scraper
-        run: python scraper/main.py
+        run: python3 scraper/main.py
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

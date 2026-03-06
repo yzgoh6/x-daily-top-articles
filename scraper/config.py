@@ -34,6 +34,9 @@ CATEGORIES = {
             ("AlphaGenome", 3), ("Copilot", 3), ("Perplexity", 3),
             ("reasoning model", 3), ("Opus", 3), ("Sonnet", 3),
             ("Claude Code", 3), ("GitHub Copilot", 3),
+            # Strong signals (weight 3) — Chinese
+            ("人工智能", 3), ("大模型", 3), ("深度学习", 3), ("机器学习", 3),
+            ("大语言模型", 3), ("文生图", 3), ("文生视频", 3),
             # Medium signals (weight 2)
             ("LLM", 2), ("neural network", 2), ("transformer", 2),
             ("NLP", 2), ("computer vision", 2), ("reinforcement learning", 2),
@@ -43,6 +46,10 @@ CATEGORIES = {
             ("text-to-image", 2), ("text-to-video", 2), ("AI agent", 2),
             ("AI coding", 2), ("vibe coding", 2),
             ("AI productivity", 2), ("AI news", 2),
+            # Medium signals (weight 2) — Chinese
+            ("神经网络", 2), ("自然语言处理", 2), ("计算机视觉", 2),
+            ("强化学习", 2), ("提示词工程", 2), ("智能体", 2),
+            ("AI编程", 2), ("AI助手", 2),
             # Weak signals (weight 1) - need multiple hits
             ("AI", 1), ("chatbot", 1), ("model", 1), ("training", 1),
             ("inference", 1), ("Gemini", 1), ("Alpha", 1),
@@ -67,6 +74,15 @@ CATEGORIES = {
             "from:perplexity_ai lang:en min_faves:50",
             "from:cursor_ai lang:en min_faves:50",
         ],
+        "search_queries_xhs": [
+            "人工智能",
+            "ChatGPT",
+            "大模型 AI",
+            "深度学习",
+            "AI编程 工具",
+            "OpenAI",
+            "AI智能体",
+        ],
     },
     "Tech": {
         "priority": 2,
@@ -83,6 +99,8 @@ CATEGORIES = {
             ("Amazon", 3), ("AWS", 3), ("Tesla", 3), ("SpaceX", 3),
             ("Meta", 3), ("Samsung", 3), ("NVIDIA", 3), ("TSMC", 3),
             ("Intel", 3), ("AMD", 3), ("Qualcomm", 3),
+            # Strong signals (weight 3) — Chinese
+            ("编程", 3), ("开源", 3), ("半导体", 3), ("芯片", 3),
             # Medium signals (weight 2)
             ("React", 2), ("Python", 2), ("JavaScript", 2), ("TypeScript", 2),
             ("Rust", 2), ("Go lang", 2), ("Swift", 2), ("Kotlin", 2),
@@ -92,6 +110,9 @@ CATEGORIES = {
             ("FAANG", 3), ("system design", 2), ("REST API", 2),
             ("microservices", 2), ("data engineering", 2),
             ("SDE", 2), ("backend", 2), ("frontend", 2), ("full stack", 2),
+            # Medium signals (weight 2) — Chinese
+            ("程序员", 2), ("前端", 2), ("后端", 2), ("全栈", 2),
+            ("网络安全", 2), ("云计算", 2), ("数据库", 2),
             # Weak signals (weight 1)
             ("software", 1), ("tech", 1), ("API", 1), ("cloud", 1),
             ("code", 1), ("chip", 1), ("app", 1), ("engineer", 1),
@@ -102,6 +123,12 @@ CATEGORIES = {
             "Apple Google NVIDIA lang:en min_faves:200",
             "developer programming lang:en min_faves:100",
         ],
+        "search_queries_xhs": [
+            "科技数码",
+            "程序员 编程",
+            "苹果 iPhone",
+            "数码测评",
+        ],
     },
     "Crypto": {
         "priority": 3,
@@ -109,9 +136,13 @@ CATEGORIES = {
             ("cryptocurrency", 3), ("bitcoin", 3), ("ethereum", 3),
             ("blockchain", 3), ("DeFi", 3), ("Web3", 3), ("Solana", 3),
             ("Binance", 3), ("Coinbase", 3), ("stablecoin", 3),
+            # Chinese
+            ("加密货币", 3), ("比特币", 3), ("以太坊", 3), ("区块链", 3),
+            ("去中心化", 3), ("稳定币", 3),
             ("NFT", 2), ("altcoin", 2), ("memecoin", 2), ("airdrop", 2),
             ("BTC", 2), ("ETH", 2), ("DOGE", 2), ("XRP", 2),
             ("crypto", 2), ("Kaspa", 3), ("Cardano", 3), ("Polkadot", 3),
+            ("虚拟货币", 2), ("挖矿", 2), ("空投", 2),
             ("token", 1), ("mining", 1), ("wallet", 1), ("coin", 1),
         ],
         "search_queries": [
@@ -123,6 +154,11 @@ CATEGORIES = {
             "from:ethereum lang:en min_faves:50",
             "from:CoinDesk lang:en min_faves:50",
         ],
+        "search_queries_xhs": [
+            "加密货币 比特币",
+            "区块链 Web3",
+            "币圈",
+        ],
     },
     "Finance": {
         "priority": 4,
@@ -131,11 +167,16 @@ CATEGORIES = {
             ("S&P 500", 3), ("NASDAQ", 3), ("interest rate", 3),
             ("Federal Reserve", 3), ("circuit breaker", 3),
             ("Dow Jones", 3), ("rate cut", 3), ("rate hike", 3), ("stock picks", 3),
+            # Chinese
+            ("股市", 3), ("A股", 3), ("基金", 3), ("理财", 3),
+            ("降息", 3), ("加息", 3), ("通货膨胀", 3),
             ("investment", 2), ("portfolio", 2), ("investing", 2),
             ("ETF", 2), ("dividend", 2), ("forex", 2), ("bond", 2),
             ("earnings", 2), ("IPO", 2), ("Yen", 2), ("currency", 2),
             ("bull market", 2), ("bear market", 2),
             ("Treasury", 2), ("inflation", 2), ("recession", 2),
+            # Chinese medium
+            ("投资", 2), ("炒股", 2), ("牛市", 2), ("熊市", 2),
             ("finance", 1), ("stock", 1), ("trading", 1), ("market", 1),
             ("revenue", 1), ("Fed", 1), ("investor", 1),
         ],
@@ -154,13 +195,22 @@ CATEGORIES = {
             "from:YahooFinance lang:en min_faves:50",
             "from:Barchart lang:en min_faves:50",
         ],
+        "search_queries_xhs": [
+            "股票 投资",
+            "基金 理财",
+            "A股 股市",
+        ],
     },
     "Business": {
         "priority": 5,
         "keywords": [
             ("acquisition", 3), ("supply chain", 3), ("e-commerce", 3),
+            # Chinese
+            ("收购", 3), ("供应链", 3), ("电商", 3),
             ("enterprise", 2), ("CEO", 2), ("marketing", 2),
             ("brand", 2), ("valuation", 2),
+            # Chinese medium
+            ("商业模式", 2), ("营销", 2), ("品牌", 2), ("管理", 2),
             ("business", 1), ("strategy", 1), ("management", 1),
             ("leadership", 1),
         ],
@@ -170,6 +220,10 @@ CATEGORIES = {
             "from:HarvardBiz lang:en min_faves:50",
             "from:McKinsey lang:en min_faves:50",
         ],
+        "search_queries_xhs": [
+            "商业 趋势",
+            "电商 运营",
+        ],
     },
     "Startup": {
         "priority": 6,
@@ -177,7 +231,11 @@ CATEGORIES = {
             ("Y Combinator", 3), ("venture capital", 3), ("seed round", 3),
             ("Series A", 3), ("Series B", 3), ("product-market fit", 3),
             ("pitch deck", 3), ("bootstrapped", 3),
+            # Chinese
+            ("风险投资", 3), ("天使轮", 3), ("融资", 3),
             ("startup", 2), ("founder", 2), ("fundraising", 2),
+            # Chinese medium
+            ("创业", 2), ("创始人", 2),
             ("VC", 1), ("YC", 1),
         ],
         "search_queries": [
@@ -185,6 +243,10 @@ CATEGORIES = {
             "from:ycombinator lang:en min_faves:50",
             "from:a16z lang:en min_faves:50",
             "from:sequoia lang:en min_faves:50",
+        ],
+        "search_queries_xhs": [
+            "创业 融资",
+            "创业者 经验",
         ],
     },
 }
@@ -202,6 +264,10 @@ SPAM_PATTERNS = [
     r"(?i)batches are filling up fast",                   # Course/sales spam
     r"(?i)Nieuws Update",                                 # Dutch news bot
     r"(?i)^\d+ pips now",                                 # Forex signal spam
+    # XHS spam patterns
+    r"(?i)(私信|加我微信|加微|➕v|➕V)",                    # WeChat solicitation
+    r"(?i)(免费领取|限时优惠|点击链接|立即下单)",              # Sales spam
+    r"(?i)(好物分享.*#广告|#ad\b.*#好物推荐)",               # Disguised ads
 ]
 
 CATEGORY_PRIORITY = sorted(CATEGORIES.keys(), key=lambda c: CATEGORIES[c]["priority"])

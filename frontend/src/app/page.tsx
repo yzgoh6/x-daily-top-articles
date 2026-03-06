@@ -1,12 +1,19 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Article, CATEGORIES } from "@/lib/types";
 import ArticleCard from "@/components/ArticleCard";
 import { useTheme } from "@/components/ThemeProvider";
 
 type SortMode = "hot" | "latest" | "most_liked" | "most_shared";
+type PlatformFilter = "all" | "x" | "xhs";
+
+const PLATFORM_OPTIONS: { value: PlatformFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "x", label: "\u{1D54F}" },
+  { value: "xhs", label: "\u{1F4D5} XHS" },
+];
 
 const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "hot", label: "Hot" },
@@ -18,98 +25,119 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
 const PAGE_SIZE = 50;
 const MIN_SCORE = 100;
 
+function sortColumn(sort: SortMode): string {
+  switch (sort) {
+    case "latest": return "published_at";
+    case "most_liked": return "likes";
+    case "most_shared": return "shares";
+    case "hot":
+    default: return "engagement_score";
+  }
+}
+
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
   const [category, setCategory] = useState("All");
+  const [platform, setPlatform] = useState<PlatformFilter>("all");
   const [sort, setSort] = useState<SortMode>("hot");
   const [date, setDate] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [totalFiltered, setTotalFiltered] = useState(0);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
   const { theme, setTheme } = useTheme();
+  const fetchIdRef = useRef(0);
 
-  const fetchArticles = useCallback(() => {
-    supabase
+  const fetchArticles = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+    if (silent) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    const id = ++fetchIdRef.current;
+
+    // Build filtered query
+    let query = supabase
       .from("articles")
       .select("*")
-      .order("engagement_score", { ascending: false })
-      .limit(500)
-      .then(({ data, error: err }) => {
-        if (err) {
-          setError(true);
-        } else {
-          setArticles((data as Article[]) || []);
-          setError(false);
-        }
-        setLoading(false);
-      });
-  }, []);
+      .gte("engagement_score", MIN_SCORE);
 
-  // Initial fetch
+    if (platform !== "all") query = query.eq("platform", platform);
+    if (category !== "All") query = query.eq("category", category);
+    if (date) query = query.eq("fetch_batch", date);
+
+    query = query.order(sortColumn(sort), { ascending: false });
+    query = query.range(0, visibleCount - 1);
+
+    const { data, error: err } = await query;
+
+    // Discard stale responses
+    if (id !== fetchIdRef.current) return;
+
+    if (err) {
+      setError(true);
+    } else {
+      setArticles((data as Article[]) || []);
+      setError(false);
+    }
+    setLoading(false);
+    setRefreshing(false);
+  }, [platform, category, date, sort, visibleCount]);
+
+  // Fetch category counts (lightweight query for chip badges)
+  const fetchCategoryCounts = useCallback(async () => {
+    let query = supabase
+      .from("articles")
+      .select("category")
+      .gte("engagement_score", MIN_SCORE)
+      .limit(5000);
+
+    if (platform !== "all") query = query.eq("platform", platform);
+    if (date) query = query.eq("fetch_batch", date);
+
+    const { data } = await query;
+    if (!data) return;
+
+    const counts: Record<string, number> = {};
+    let total = 0;
+    for (const row of data) {
+      counts[row.category] = (counts[row.category] || 0) + 1;
+      total++;
+    }
+    setCategoryCounts(counts);
+    setTotalFiltered(total);
+  }, [platform, date]);
+
+  // Fetch articles when filters/sort/pagination change
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
 
+  // Fetch category counts when platform/date change
+  useEffect(() => {
+    fetchCategoryCounts();
+  }, [fetchCategoryCounts]);
+
   // Auto-refresh every 5 minutes
   useEffect(() => {
-    const interval = setInterval(fetchArticles, 5 * 60 * 1000);
+    const interval = setInterval(() => {
+      fetchArticles({ silent: true });
+      fetchCategoryCounts();
+    }, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [fetchArticles]);
+  }, [fetchArticles, fetchCategoryCounts]);
 
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [category, sort, date]);
+  }, [category, platform, sort, date]);
 
-  const filtered = useMemo(() => {
-    let result = articles.filter((a) => (a.engagement_score ?? 0) >= MIN_SCORE);
+  const hasMore = articles.length === visibleCount;
 
-    if (date) {
-      result = result.filter((a) => a.fetch_batch === date);
-    }
-
-    if (category !== "All") {
-      result = result.filter((a) => a.category === category);
-    }
-
-    // Sort
-    result = [...result].sort((a, b) => {
-      switch (sort) {
-        case "latest":
-          return (b.published_at ?? "").localeCompare(a.published_at ?? "");
-        case "most_liked":
-          return (b.likes ?? 0) - (a.likes ?? 0);
-        case "most_shared":
-          return (b.shares ?? 0) - (a.shares ?? 0);
-        case "hot":
-        default:
-          return (b.engagement_score ?? 0) - (a.engagement_score ?? 0);
-      }
-    });
-
-    return result;
-  }, [articles, category, sort, date]);
-
-  const visibleArticles = useMemo(
-    () => filtered.slice(0, visibleCount),
-    [filtered, visibleCount]
-  );
-  const hasMore = filtered.length > visibleCount;
-
-  const qualityArticles = useMemo(
-    () => articles.filter((a) => (a.engagement_score ?? 0) >= MIN_SCORE),
-    [articles]
-  );
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const a of qualityArticles) {
-      counts[a.category] = (counts[a.category] || 0) + 1;
-    }
-    return counts;
-  }, [qualityArticles]);
-
-  const totalCount = qualityArticles.length;
   const lastFetched = useMemo(() => {
     if (!articles.length) return null;
     return articles.reduce((max, a) => (a.fetched_at > max ? a.fetched_at : max), articles[0].fetched_at);
@@ -119,14 +147,29 @@ export default function Home() {
   const isToday = date === today;
   const isAll = date === "";
 
+  const hasActiveFilters = category !== "All" || platform !== "all" || date !== "";
+
+  const clearAllFilters = () => {
+    setCategory("All");
+    setPlatform("all");
+    setDate("");
+  };
+
   const chipActive = "bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100";
   const chipInactive = "bg-white text-gray-600 border-gray-300 hover:border-gray-400 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:border-gray-500";
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      {/* Refreshing indicator */}
+      {refreshing && (
+        <div className="fixed top-3 right-3 z-50 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs px-3 py-1.5 rounded-full shadow-lg animate-pulse">
+          Updating...
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          X Daily Top Articles
+          Daily Top Articles
         </h1>
         <div className="flex items-center gap-3">
           <button
@@ -148,7 +191,7 @@ export default function Home() {
       {/* Category Chips */}
       <div className="flex flex-wrap gap-2 mb-4">
         {CATEGORIES.map((cat) => {
-          const count = cat === "All" ? totalCount : (categoryCounts[cat] || 0);
+          const count = cat === "All" ? totalFiltered : (categoryCounts[cat] || 0);
           const active = category === cat;
           return (
             <button
@@ -167,6 +210,21 @@ export default function Home() {
             </button>
           );
         })}
+      </div>
+
+      {/* Platform Filter */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {PLATFORM_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => setPlatform(opt.value)}
+            className={`px-3 py-1.5 text-sm rounded-full border transition-colors active:scale-95 ${
+              platform === opt.value ? chipActive : chipInactive
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {/* Filter Bar: View + Time */}
@@ -230,9 +288,9 @@ export default function Home() {
               <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full" />
             </div>
           ))
-        ) : visibleArticles.length > 0 ? (
+        ) : articles.length > 0 ? (
           <>
-            {visibleArticles.map((article) => (
+            {articles.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
             {hasMore && (
@@ -240,13 +298,25 @@ export default function Home() {
                 onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
                 className="w-full py-3 text-sm text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
-                Load more ({filtered.length - visibleCount} remaining)
+                Load more
               </button>
             )}
           </>
+        ) : hasActiveFilters ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 dark:text-gray-600 mb-3">
+              No articles match your filters.
+            </p>
+            <button
+              onClick={clearAllFilters}
+              className="text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+            >
+              Clear all filters
+            </button>
+          </div>
         ) : (
           <p className="text-gray-400 dark:text-gray-600 text-center py-12">
-            No articles found.
+            No articles yet. The scraper may not have run today.
           </p>
         )}
       </div>
